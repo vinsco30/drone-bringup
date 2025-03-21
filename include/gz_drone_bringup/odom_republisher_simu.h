@@ -41,8 +41,8 @@ class OdomRepublisherSimu : public rclcpp::Node
 
         rclcpp::TimerBase::SharedPtr _timer_px4_out;
 
-        Eigen::Vector3d _gz_pos, _gz_vel, _gz_ang_vel;
-        Eigen::Vector4d _gz_quat;
+        Eigen::Vector3d _gz_pos, _gz_vel, _gz_ang_vel, _px4_pose_flu;
+        Eigen::Vector4d _gz_quat, _px4_quat_flu;
         Eigen::Vector3d _px4_pos_out, _px4_vel_out, _px4_ang_vel_out;
         Eigen::Vector4d _px4_quat_out;
         Eigen::Vector3d _px4_pos_in, _px4_vel_in, _px4_ang_vel_in;
@@ -50,7 +50,8 @@ class OdomRepublisherSimu : public rclcpp::Node
 
         /*Broadcaster*/
         std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster;
-        geometry_msgs::msg::TransformStamped _t;
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_flu;
+        geometry_msgs::msg::TransformStamped _t, _t_flu;
 
         /*Rotation matrices*/
         Eigen::Matrix3d _R_flu2frd;

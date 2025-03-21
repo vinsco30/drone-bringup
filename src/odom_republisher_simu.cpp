@@ -19,6 +19,9 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     _tf_broadcaster =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    _tf_broadcaster_flu =
+      std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
     _timer_px4_out = 
         this->create_wall_timer( std::chrono::milliseconds(100), 
         std::bind( &OdomRepublisherSimu::px4_odom_repub, this ) );
@@ -32,6 +35,7 @@ void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr m
     _gz_quat << msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z;
     _gz_vel << msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z;
     _gz_ang_vel << msg->twist.twist.angular.x, msg->twist.twist.angular.y, msg->twist.twist.angular.z;
+
 }
 
 void OdomRepublisherSimu::odom_px4_cb( const px4_msgs::msg::VehicleOdometry::SharedPtr msg ) {
@@ -40,8 +44,9 @@ void OdomRepublisherSimu::odom_px4_cb( const px4_msgs::msg::VehicleOdometry::Sha
         _px4_pos_out << msg->position[0], msg->position[1], msg->position[2];
         _px4_quat_out << msg->q[0], msg->q[1], msg->q[2], msg->q[3];
 
+        /*Broadcaster FRD transform*/
         _t.header.stamp = this->get_clock()->now();
-        _t.header.frame_id = "odom_ned";
+        _t.header.frame_id = "odom";
         _t.child_frame_id = "base_link_frd";
         _t.transform.translation.x = _px4_pos_out[0];
         _t.transform.translation.y = _px4_pos_out[1];
@@ -52,6 +57,23 @@ void OdomRepublisherSimu::odom_px4_cb( const px4_msgs::msg::VehicleOdometry::Sha
         _t.transform.rotation.z = _px4_quat_out[3];
 
         _tf_broadcaster->sendTransform(_t);
+
+        /*Broadcaster FLU transform*/
+        _px4_pose_flu = _R_flu2frd.transpose()*_px4_pos_out;
+        _px4_quat_flu = utilities::rot2quat( utilities::Q2R( _px4_quat_out )*_R_flu2frd.transpose() );
+
+        _t_flu.header.stamp = this->get_clock()->now();
+        _t_flu.header.frame_id = "odom";
+        _t_flu.child_frame_id = "base_link";
+        _t_flu.transform.translation.x = _px4_pose_flu[0];
+        _t_flu.transform.translation.y = _px4_pose_flu[1];
+        _t_flu.transform.translation.z = _px4_pose_flu[2];
+        _t_flu.transform.rotation.w = _px4_quat_flu[0];
+        _t_flu.transform.rotation.x = _px4_quat_flu[1];
+        _t_flu.transform.rotation.y = _px4_quat_flu[2];
+        _t_flu.transform.rotation.z = _px4_quat_flu[3];
+
+        _tf_broadcaster_flu->sendTransform(_t_flu);
     }
 
 }

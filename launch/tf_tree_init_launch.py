@@ -22,11 +22,11 @@ def generate_launch_description():
             executable = "static_transform_publisher",
             arguments = ["0", "0", "0","1.57", "0", "-3.14", "odom", "odom_ned"]
         ),
-        launch_ros.actions.Node(
-            package = "tf2_ros",
-            executable = "static_transform_publisher",
-            arguments = ["0", "0", "0", "0", "0", "-3.14", "base_link", "base_link_frd"]
-        ),
+        # launch_ros.actions.Node(
+        #     package = "tf2_ros",
+        #     executable = "static_transform_publisher",
+        #     arguments = ["0", "0", "0", "0", "0", "-3.14", "base_link", "base_link_frd"]
+        # ),
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
