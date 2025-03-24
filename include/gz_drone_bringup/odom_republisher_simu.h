@@ -33,6 +33,8 @@ class OdomRepublisherSimu : public rclcpp::Node
         void odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr ); 
         void odom_px4_cb( const px4_msgs::msg::VehicleOdometry::SharedPtr );
         void px4_odom_repub();
+        void static_tf_pub();
+        void tf_listener();
 
         rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odom_gz_sub;
         rclcpp::Subscription<px4_msgs::msg::VehicleOdometry>::SharedPtr _odom_px4_sub;
@@ -40,6 +42,8 @@ class OdomRepublisherSimu : public rclcpp::Node
         rclcpp::Publisher<px4_msgs::msg::VehicleOdometry>::SharedPtr _odom_px4_pub;
 
         rclcpp::TimerBase::SharedPtr _timer_px4_out;
+        rclcpp::TimerBase::SharedPtr _timer_static_tf;
+        rclcpp::TimerBase::SharedPtr _timer_tf_listener;
 
         Eigen::Vector3d _gz_pos, _gz_vel, _gz_ang_vel, _px4_pose_flu;
         Eigen::Vector4d _gz_quat, _px4_quat_flu;
@@ -49,9 +53,20 @@ class OdomRepublisherSimu : public rclcpp::Node
         Eigen::Vector4d _px4_quat_in;
 
         /*Broadcaster*/
-        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster;
-        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_flu;
-        geometry_msgs::msg::TransformStamped _t, _t_flu;
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster; //TF broadcaster odom->base_link
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static1; //TF broadcaster base_link->base_link_frd
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static2; //TF broadcaster odom->odom_ned
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static3; //TF broadcaster odom_px4_ned -> odom_px4
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static4; //TF broadcaster base_link_px4_frd -> base_link_px4
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster1; //TF broadcaster  odom_px4_ned->base_link_px4_frd
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_flu; 
+        geometry_msgs::msg::TransformStamped _t, _t_flu, _t_static1, _t_static2, _t_static3, _t_px4;
+
+
+
+        /*Listener*/
+        std::shared_ptr<tf2_ros::Buffer> _tf_buffer;
+        std::shared_ptr<tf2_ros::TransformListener> _tf_listener_ned;
 
         /*Rotation matrices*/
         Eigen::Matrix3d _R_flu2frd;

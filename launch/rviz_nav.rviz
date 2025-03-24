@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1/Status1
+        - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 555
@@ -57,7 +57,7 @@ Visualization Manager:
         base_link:
           Value: true
         base_link_frd:
-          Value: false
+          Value: true
         map:
           Value: true
         map_ned:
@@ -72,14 +72,10 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          map_ned:
-            {}
         odom:
           base_link:
-            {}
-          base_link_frd:
-            {}
+            base_link_frd:
+              {}
           odom_ned:
             {}
       Update Interval: 0

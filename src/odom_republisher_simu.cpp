@@ -22,12 +22,66 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     _tf_broadcaster_flu =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-    _timer_px4_out = 
-        this->create_wall_timer( std::chrono::milliseconds(100), 
-        std::bind( &OdomRepublisherSimu::px4_odom_repub, this ) );
+    _tf_broadcaster_static1 =
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    _tf_broadcaster_static2 =
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    _tf_broadcaster_static3 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    _tf_broadcaster1 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    _tf_buffer = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+
+    _tf_listener_ned = std::make_shared<tf2_ros::TransformListener>(*_tf_buffer);
+
+    _timer_static_tf =
+        this->create_wall_timer( std::chrono::milliseconds(100),
+        std::bind( &OdomRepublisherSimu::static_tf_pub, this ) );
+
+    _timer_tf_listener =
+        this->create_wall_timer( std::chrono::milliseconds(100),
+        std::bind( &OdomRepublisherSimu::tf_listener, this ) );
+
+    // _timer_px4_out = 
+    //     this->create_wall_timer( std::chrono::milliseconds(100), 
+    //     std::bind( &OdomRepublisherSimu::px4_odom_repub, this ) );
 
     _R_flu2frd = utilities::rotx(-M_PI);
-}   
+} 
+
+void OdomRepublisherSimu::static_tf_pub() {
+    
+    _t_static2.header.stamp = this->get_clock()->now();
+    _t_static2.header.frame_id = "odom";
+    _t_static2.child_frame_id = "odom_ned";
+    _t_static2.transform.translation.x = 0.0;
+    _t_static2.transform.translation.y = 0.0;
+    _t_static2.transform.translation.z = 0.0;
+    _t_static2.transform.rotation.w = 0.0;
+    _t_static2.transform.rotation.x = 0.707;
+    _t_static2.transform.rotation.y = 0.707;
+    _t_static2.transform.rotation.z = 0.0;
+
+    _tf_broadcaster_static2->sendTransform(_t_static2);
+
+    _t_static3.header.stamp = this->get_clock()->now();
+    _t_static3.header.frame_id = "odom_px4_ned";
+    _t_static3.child_frame_id = "odom_px4";
+    _t_static3.transform.translation.x = 0.0;
+    _t_static3.transform.translation.y = 0.0;
+    _t_static3.transform.translation.z = 0.0;
+    _t_static3.transform.rotation.w = 0.0;
+    _t_static3.transform.rotation.x = 0.707;
+    _t_static3.transform.rotation.y = 0.707;
+    _t_static3.transform.rotation.z = 0.0;
+
+    _tf_broadcaster_static3->sendTransform(_t_static3);
+
+}
 
 void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr msg ) {
 
@@ -35,6 +89,67 @@ void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr m
     _gz_quat << msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z;
     _gz_vel << msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z;
     _gz_ang_vel << msg->twist.twist.angular.x, msg->twist.twist.angular.y, msg->twist.twist.angular.z;
+
+    _t_static1.header.stamp = this->get_clock()->now();
+    _t_static1.header.frame_id = "base_link";
+    _t_static1.child_frame_id = "base_link_frd";
+    _t_static1.transform.translation.x = 0.0;
+    _t_static1.transform.translation.y = 0.0;
+    _t_static1.transform.translation.z = 0.0;
+    _t_static1.transform.rotation.w = 0.0;
+    _t_static1.transform.rotation.x = 1.0;
+    _t_static1.transform.rotation.y = 0.0;
+    _t_static1.transform.rotation.z = 0.0;
+
+    _tf_broadcaster_static1->sendTransform(_t_static1);
+
+    _t.header.stamp = this->get_clock()->now();
+    _t.header.frame_id = "odom";
+    _t.child_frame_id = "base_link";
+    _t.transform.translation.x = _gz_pos[0];
+    _t.transform.translation.y = _gz_pos[1];
+    _t.transform.translation.z = _gz_pos[2];
+    _t.transform.rotation.w = _gz_quat[0];
+    _t.transform.rotation.x = _gz_quat[1];
+    _t.transform.rotation.y = _gz_quat[2];
+    _t.transform.rotation.z = _gz_quat[3];
+
+    _tf_broadcaster->sendTransform(_t);
+
+
+}
+
+void OdomRepublisherSimu::tf_listener() {
+    
+    try {
+        auto transform = _tf_buffer->lookupTransform("odom_ned", "base_link_frd", tf2::TimePointZero);
+        _px4_pos_in << transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z;
+        _px4_quat_in << transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z;
+    } catch (tf2::TransformException &ex) {
+        RCLCPP_WARN(this->get_logger(), "%s", ex.what());
+    }
+
+    auto odom_px4 = std::make_unique<px4_msgs::msg::VehicleOdometry>();
+    odom_px4->pose_frame = 2;
+    odom_px4->timestamp = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::steady_clock::now()).time_since_epoch().count();
+    odom_px4->position[0] = _px4_pos_in[0];
+    odom_px4->position[1] = _px4_pos_in[1];
+    odom_px4->position[2] = _px4_pos_in[2];
+    odom_px4->q[0] = _px4_quat_in[0];
+    odom_px4->q[1] = _px4_quat_in[1];
+    odom_px4->q[2] = _px4_quat_in[2];
+    odom_px4->q[3] = _px4_quat_in[3];
+    odom_px4->velocity_frame = 2;
+    odom_px4->velocity[0] = NAN;
+    odom_px4->velocity[1] = NAN;
+    odom_px4->velocity[2] = NAN;
+    odom_px4->angular_velocity[0] = NAN;
+    odom_px4->angular_velocity[1] = NAN;
+    odom_px4->angular_velocity[2] = NAN;
+
+    _odom_px4_pub->publish( std::move( odom_px4 ) );
+    _first_odom_sent = true;
+
 
 }
 
@@ -44,36 +159,20 @@ void OdomRepublisherSimu::odom_px4_cb( const px4_msgs::msg::VehicleOdometry::Sha
         _px4_pos_out << msg->position[0], msg->position[1], msg->position[2];
         _px4_quat_out << msg->q[0], msg->q[1], msg->q[2], msg->q[3];
 
+
         /*Broadcaster FRD transform*/
-        _t.header.stamp = this->get_clock()->now();
-        _t.header.frame_id = "odom";
-        _t.child_frame_id = "base_link_frd";
-        _t.transform.translation.x = _px4_pos_out[0];
-        _t.transform.translation.y = _px4_pos_out[1];
-        _t.transform.translation.z = _px4_pos_out[2];
-        _t.transform.rotation.w = _px4_quat_out[0];
-        _t.transform.rotation.x = _px4_quat_out[1];
-        _t.transform.rotation.y = _px4_quat_out[2];
-        _t.transform.rotation.z = _px4_quat_out[3];
+        _t_px4.header.stamp = this->get_clock()->now();
+        _t_px4.header.frame_id = "odom_px4_ned";
+        _t_px4.child_frame_id = "base_link_px4_frd";
+        _t_px4.transform.translation.x = _px4_pos_out[0];
+        _t_px4.transform.translation.y = _px4_pos_out[1];
+        _t_px4.transform.translation.z = _px4_pos_out[2];
+        _t_px4.transform.rotation.w = _px4_quat_out[0];
+        _t_px4.transform.rotation.x = _px4_quat_out[1];
+        _t_px4.transform.rotation.y = _px4_quat_out[2];
+        _t_px4.transform.rotation.z = _px4_quat_out[3];
 
-        _tf_broadcaster->sendTransform(_t);
-
-        /*Broadcaster FLU transform*/
-        _px4_pose_flu = _R_flu2frd.transpose()*_px4_pos_out;
-        _px4_quat_flu = utilities::rot2quat( utilities::Q2R( _px4_quat_out )*_R_flu2frd.transpose() );
-
-        _t_flu.header.stamp = this->get_clock()->now();
-        _t_flu.header.frame_id = "odom";
-        _t_flu.child_frame_id = "base_link";
-        _t_flu.transform.translation.x = _px4_pose_flu[0];
-        _t_flu.transform.translation.y = _px4_pose_flu[1];
-        _t_flu.transform.translation.z = _px4_pose_flu[2];
-        _t_flu.transform.rotation.w = _px4_quat_flu[0];
-        _t_flu.transform.rotation.x = _px4_quat_flu[1];
-        _t_flu.transform.rotation.y = _px4_quat_flu[2];
-        _t_flu.transform.rotation.z = _px4_quat_flu[3];
-
-        _tf_broadcaster_flu->sendTransform(_t_flu);
+        _tf_broadcaster1->sendTransform(_t_px4);
     }
 
 }
