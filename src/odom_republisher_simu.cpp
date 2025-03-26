@@ -2,11 +2,24 @@
 
 OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_simu" ) {
 
+    this->declare_parameter<string>("prefix_gz", "x500_0");
+    _prefix_gz = this->get_parameter("prefix_gz").as_string();
+    this->declare_parameter<string>("prefix_tf", "uav");
+    _prefix_tf = this->get_parameter("prefix_tf").as_string();
+
     rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
 
+    const char* first_part = "/model/";
+    const char* second_part = "/odometry";
+    char result[30];
+
+    strcpy(result, first_part);
+    strcat(result, _prefix_gz.c_str());
+    strcat(result, second_part);
+
     _odom_gz_sub = 
-        this->create_subscription<nav_msgs::msg::Odometry>( "/model/x500_0/odometry", qos, 
+        this->create_subscription<nav_msgs::msg::Odometry>( result, qos, 
         std::bind( &OdomRepublisherSimu::odom_gz_cb, this, std::placeholders::_1 ) );
 
     _odom_px4_sub = 
@@ -56,8 +69,8 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
 void OdomRepublisherSimu::static_tf_pub() {
     
     _t_static2.header.stamp = this->get_clock()->now();
-    _t_static2.header.frame_id = "odom";
-    _t_static2.child_frame_id = "odom_ned";
+    _t_static2.header.frame_id = _prefix_tf+"/odom";
+    _t_static2.child_frame_id = _prefix_tf+"/odom_ned";
     _t_static2.transform.translation.x = 0.0;
     _t_static2.transform.translation.y = 0.0;
     _t_static2.transform.translation.z = 0.0;
@@ -69,8 +82,8 @@ void OdomRepublisherSimu::static_tf_pub() {
     _tf_broadcaster_static2->sendTransform(_t_static2);
 
     _t_static3.header.stamp = this->get_clock()->now();
-    _t_static3.header.frame_id = "odom_px4_ned";
-    _t_static3.child_frame_id = "odom_px4";
+    _t_static3.header.frame_id =  _prefix_tf+"/odom_px4_ned";
+    _t_static3.child_frame_id =  _prefix_tf+"/odom_px4";
     _t_static3.transform.translation.x = 0.0;
     _t_static3.transform.translation.y = 0.0;
     _t_static3.transform.translation.z = 0.0;
@@ -91,8 +104,8 @@ void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr m
     _gz_ang_vel << msg->twist.twist.angular.x, msg->twist.twist.angular.y, msg->twist.twist.angular.z;
 
     _t_static1.header.stamp = this->get_clock()->now();
-    _t_static1.header.frame_id = "base_link";
-    _t_static1.child_frame_id = "base_link_frd";
+    _t_static1.header.frame_id =  _prefix_tf+"/base_link";
+    _t_static1.child_frame_id =  _prefix_tf+"/base_link_frd";
     _t_static1.transform.translation.x = 0.0;
     _t_static1.transform.translation.y = 0.0;
     _t_static1.transform.translation.z = 0.0;
@@ -104,8 +117,8 @@ void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr m
     _tf_broadcaster_static1->sendTransform(_t_static1);
 
     _t.header.stamp = this->get_clock()->now();
-    _t.header.frame_id = "odom";
-    _t.child_frame_id = "base_link";
+    _t.header.frame_id =  _prefix_tf+"/odom";
+    _t.child_frame_id =  _prefix_tf+"/base_link";
     _t.transform.translation.x = _gz_pos[0];
     _t.transform.translation.y = _gz_pos[1];
     _t.transform.translation.z = _gz_pos[2];
@@ -122,7 +135,7 @@ void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr m
 void OdomRepublisherSimu::tf_listener() {
     
     try {
-        auto transform = _tf_buffer->lookupTransform("odom_ned", "base_link_frd", tf2::TimePointZero);
+        auto transform = _tf_buffer->lookupTransform( _prefix_tf+"/odom_ned",  _prefix_tf+"/base_link_frd", tf2::TimePointZero);
         _px4_pos_in << transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z;
         _px4_quat_in << transform.transform.rotation.w, transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z;
     } catch (tf2::TransformException &ex) {
@@ -162,8 +175,8 @@ void OdomRepublisherSimu::odom_px4_cb( const px4_msgs::msg::VehicleOdometry::Sha
 
         /*Broadcaster FRD transform*/
         _t_px4.header.stamp = this->get_clock()->now();
-        _t_px4.header.frame_id = "odom_px4_ned";
-        _t_px4.child_frame_id = "base_link_px4_frd";
+        _t_px4.header.frame_id =  _prefix_tf+"/odom_px4_ned";
+        _t_px4.child_frame_id =  _prefix_tf+"/base_link_px4_frd";
         _t_px4.transform.translation.x = _px4_pos_out[0];
         _t_px4.transform.translation.y = _px4_pos_out[1];
         _t_px4.transform.translation.z = _px4_pos_out[2];

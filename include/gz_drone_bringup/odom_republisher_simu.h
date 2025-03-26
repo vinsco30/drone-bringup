@@ -6,6 +6,7 @@ tf transformation between odom_ned and base_link_frd*/
 #include <rclcpp/rclcpp.hpp>
 #include <chrono>
 #include "utils.h"
+#include <string>
 
 /*ROS2 msgs*/
 #include <nav_msgs/msg/odometry.hpp>
@@ -62,14 +63,16 @@ class OdomRepublisherSimu : public rclcpp::Node
         std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_flu; 
         geometry_msgs::msg::TransformStamped _t, _t_flu, _t_static1, _t_static2, _t_static3, _t_px4;
 
-
-
         /*Listener*/
         std::shared_ptr<tf2_ros::Buffer> _tf_buffer;
         std::shared_ptr<tf2_ros::TransformListener> _tf_listener_ned;
 
         /*Rotation matrices*/
         Eigen::Matrix3d _R_flu2frd;
+
+        /*String prefix*/
+        std::string _prefix_gz;
+        std::string _prefix_tf;
 
         /*Flags*/
         bool _first_odom_sent = false;
