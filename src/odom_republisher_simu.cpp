@@ -44,6 +44,9 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     _tf_broadcaster_static3 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    _tf_broadcaster_static4 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
     _tf_broadcaster1 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -185,7 +188,19 @@ void OdomRepublisherSimu::odom_px4_cb( const px4_msgs::msg::VehicleOdometry::Sha
         _t_px4.transform.rotation.y = _px4_quat_out[2];
         _t_px4.transform.rotation.z = _px4_quat_out[3];
 
+        _t_static4.header.stamp = this->get_clock()->now();
+        _t_static4.header.frame_id =  _prefix_tf+"/base_link_px4_frd";
+        _t_static4.child_frame_id =  _prefix_tf+"/base_link_px4";
+        _t_static4.transform.translation.x = 0.0;
+        _t_static4.transform.translation.y = 0.0;
+        _t_static4.transform.translation.z = 0.0;
+        _t_static4.transform.rotation.w = 0.0;
+        _t_static4.transform.rotation.x = 1.0;
+        _t_static4.transform.rotation.y = 0.0;
+        _t_static4.transform.rotation.z = 0.0;
+
         _tf_broadcaster1->sendTransform(_t_px4);
+        _tf_broadcaster_static4->sendTransform(_t_static4);
     }
 
 }

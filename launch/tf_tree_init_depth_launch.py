@@ -31,6 +31,8 @@ def generate_launch_description():
             executable = "static_transform_publisher",
             arguments=["0.12", "0.03", "0", "0", "0", "0", params['prefix_tf']+"/base_link", params['prefix_tf']+"/camera_link"]
         ),
+        #x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/IMX214
+
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
@@ -41,12 +43,28 @@ def generate_launch_description():
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
             arguments = ["/camera@sensor_msgs/msg/Image@gz.msgs.Image"],
+            remappings = [("/camera", params['prefix_tf']+"/camera/image_raw")],
             output = "screen"
         ),
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
             arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
+            remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
+            output = "screen"
+        ),
+        launch_ros.actions.Node(
+            package = "ros_gz_bridge",
+            executable = "parameter_bridge",
+            arguments = ["/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo"],
+            remappings = [("/camera_info", params['prefix_tf']+"/camera/camera_info")],
+            output = "screen"
+        ),
+        launch_ros.actions.Node(
+            package = "ros_gz_bridge",
+            executable = "parameter_bridge",
+            arguments = ["/depth_camera/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked"],
+            remappings = [("/depth_camera/points", params['prefix_tf']+"/camera/depth/points")],
             output = "screen"
         ),
         launch_ros.actions.Node(
