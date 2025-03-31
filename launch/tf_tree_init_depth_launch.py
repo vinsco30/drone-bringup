@@ -21,17 +21,28 @@ def generate_launch_description():
 
     return LaunchDescription([
         # dummy static transformation from ENU frames to NED frames
-        launch_ros.actions.Node(
-            package = "tf2_ros",
-            executable = "static_transform_publisher",
-            arguments=["0", "0", "0", "1.57", "0", "-3.14", params['prefix_tf']+"/map", params['prefix_tf']+"/map_ned"]
-        ),
-        launch_ros.actions.Node(
-            package = "tf2_ros",
-            executable = "static_transform_publisher",
-            arguments=["0.12", "0.03", "0", "0", "0", "0", params['prefix_tf']+"/base_link", params['prefix_tf']+"/camera_link"]
-        ),
+        # launch_ros.actions.Node(
+        #     package = "tf2_ros",
+        #     executable = "static_transform_publisher",
+        #     arguments=["0", "0", "0", "1.57", "0", "-3.14", params['prefix_tf']+"/map", params['prefix_tf']+"/map_ned"]
+        # ),
+        # launch_ros.actions.Node(
+        #     package = "tf2_ros",
+        #     executable = "static_transform_publisher",
+        #     arguments=["0.12", "0.03", "0", "0", "0", "0", params['prefix_tf']+"/base_link", params['prefix_tf']+"/camera_link"]
+        # ),
+        # launch_ros.actions.Node(
+        #     package = "tf2_ros",
+        #     executable = "static_transform_publisher",
+        #     arguments=["-9.5", "-3.5", "0.0", "0", "0", "0", params['prefix_tf']+"/odom", params['prefix_tf']+"/odom_center"]
+        # ),
         #x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/IMX214
+
+        # launch_ros.actions.Node(
+        #     package = "tf2_ros",
+        #     executable = "static_transform_publisher",
+        #     arguments=["0", "0", "0", "0", "0", "0", params['prefix_tf']+"/camera_link", "x500_depth_0/OakD-Lite/base_link/StereoOV7251"]
+        # ),
 
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
@@ -51,6 +62,7 @@ def generate_launch_description():
             executable = "parameter_bridge",
             arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
             remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
+            parameters=[{"qos_overrides./uav/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
             output = "screen"
         ),
         launch_ros.actions.Node(
@@ -65,7 +77,8 @@ def generate_launch_description():
             executable = "parameter_bridge",
             arguments = ["/depth_camera/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked"],
             remappings = [("/depth_camera/points", params['prefix_tf']+"/camera/depth/points")],
-            output = "screen"
+            output = "screen",
+            parameters=[{'use_sim_time': True}]
         ),
         launch_ros.actions.Node(
             package = "gz_drone_bringup",

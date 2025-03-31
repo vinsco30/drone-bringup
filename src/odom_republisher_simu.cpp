@@ -47,6 +47,15 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     _tf_broadcaster_static4 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    _tf_broadcaster_static5 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    _tf_broadcaster_static6 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    _tf_broadcaster_static7 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
     _tf_broadcaster1 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -96,6 +105,45 @@ void OdomRepublisherSimu::static_tf_pub() {
     _t_static3.transform.rotation.z = 0.0;
 
     _tf_broadcaster_static3->sendTransform(_t_static3);
+
+    _t_static5.header.stamp = this->get_clock()->now();
+    _t_static5.header.frame_id =  _prefix_tf+"/map";
+    _t_static5.child_frame_id =  _prefix_tf+"/map_ned";
+    _t_static5.transform.translation.x = 0.0;
+    _t_static5.transform.translation.y = 0.0;
+    _t_static5.transform.translation.z = 0.0;
+    _t_static5.transform.rotation.w = 0.0;
+    _t_static5.transform.rotation.x = 0.707;
+    _t_static5.transform.rotation.y = 0.0;
+    _t_static5.transform.rotation.z = 0.707;
+
+    _tf_broadcaster_static5->sendTransform(_t_static5);
+
+    _t_static6.header.stamp = this->get_clock()->now();
+    _t_static6.header.frame_id =  _prefix_tf+"/base_link";
+    _t_static6.child_frame_id =  _prefix_tf+"/camera_link";
+    _t_static6.transform.translation.x = 0.12;
+    _t_static6.transform.translation.y = 0.03;
+    _t_static6.transform.translation.z = 0.0;
+    _t_static6.transform.rotation.w = 1.0;
+    _t_static6.transform.rotation.x = 0.0;
+    _t_static6.transform.rotation.y = 0.0;
+    _t_static6.transform.rotation.z = 0.0;
+
+    _tf_broadcaster_static6->sendTransform(_t_static6);
+
+    _t_static7.header.stamp = this->get_clock()->now();
+    _t_static7.header.frame_id =  _prefix_tf+"/camera_link";
+    _t_static7.child_frame_id =  "x500_depth_0/OakD-Lite/base_link/StereoOV7251";
+    _t_static7.transform.translation.x = 0.0;
+    _t_static7.transform.translation.y = 0.0;
+    _t_static7.transform.translation.z = 0.0;
+    _t_static7.transform.rotation.w = 1.0;
+    _t_static7.transform.rotation.x = 0.0;
+    _t_static7.transform.rotation.y = 0.0;
+    _t_static7.transform.rotation.z = 0.0;
+
+    _tf_broadcaster_static7->sendTransform(_t_static7);
 
 }
 
