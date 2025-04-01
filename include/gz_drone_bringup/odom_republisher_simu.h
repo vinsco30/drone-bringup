@@ -66,7 +66,8 @@ class OdomRepublisherSimu : public rclcpp::Node
         std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static5;
         std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static6;
         std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static7;
-        geometry_msgs::msg::TransformStamped _t_static5, _t_static6, _t_static7;
+        std::unique_ptr<tf2_ros::TransformBroadcaster> _tf_broadcaster_static8;
+        geometry_msgs::msg::TransformStamped _t_static5, _t_static6, _t_static7, _t_static8;
 
 
         /*Listener*/

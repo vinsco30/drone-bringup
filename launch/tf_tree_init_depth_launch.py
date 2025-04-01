@@ -31,12 +31,14 @@ def generate_launch_description():
         #     executable = "static_transform_publisher",
         #     arguments=["0.12", "0.03", "0", "0", "0", "0", params['prefix_tf']+"/base_link", params['prefix_tf']+"/camera_link"]
         # ),
+
+        #x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/IMX214
+
         # launch_ros.actions.Node(
         #     package = "tf2_ros",
         #     executable = "static_transform_publisher",
-        #     arguments=["-9.5", "-3.5", "0.0", "0", "0", "0", params['prefix_tf']+"/odom", params['prefix_tf']+"/odom_center"]
+        #     arguments=["0", "0", "0", "0", "0", "0", params['prefix_tf']+"/camera_link", "x500_depth_0/OakD-Lite/base_link/IMX214"]
         # ),
-        #x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/StereoOV7251 ---- x500_depth_0/OakD-Lite/base_link/IMX214
 
         # launch_ros.actions.Node(
         #     package = "tf2_ros",
@@ -44,17 +46,26 @@ def generate_launch_description():
         #     arguments=["0", "0", "0", "0", "0", "0", params['prefix_tf']+"/camera_link", "x500_depth_0/OakD-Lite/base_link/StereoOV7251"]
         # ),
 
+        # launch_ros.actions.Node(
+        #     package = "tf2_ros",
+        #     executable = "static_transform_publisher",
+        #     arguments=["-9.5", "-3.5", "0.0", "0", "0", "0", params['prefix_tf']+"/odom", params['prefix_tf']+"/odom_center"]
+        # ),
+
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
             arguments = ["/model/x500_depth_0/odometry@nav_msgs/msg/Odometry@gz.msgs.Odometry"],
+            parameters=[{"qos_overrides./model/x500_depth_0/odometry.publisher.reliability": 'best_effort'  }],
             output = "screen"
         ),
+
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
             arguments = ["/camera@sensor_msgs/msg/Image@gz.msgs.Image"],
             remappings = [("/camera", params['prefix_tf']+"/camera/image_raw")],
+            # parameters=[{"qos_overrides./uav/camera/image_raw.publisher.reliability": 'best_effort'  }],
             output = "screen"
         ),
         launch_ros.actions.Node(
@@ -62,7 +73,7 @@ def generate_launch_description():
             executable = "parameter_bridge",
             arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
             remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
-            parameters=[{"qos_overrides./uav/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
+            # parameters=[{"qos_overrides./uav/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
             output = "screen"
         ),
         launch_ros.actions.Node(
@@ -70,6 +81,7 @@ def generate_launch_description():
             executable = "parameter_bridge",
             arguments = ["/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo"],
             remappings = [("/camera_info", params['prefix_tf']+"/camera/camera_info")],
+            # parameters=[{"qos_overrides./uav/camera/camera_info.publisher.reliability": 'best_effort'  }],
             output = "screen"
         ),
         launch_ros.actions.Node(
@@ -84,7 +96,7 @@ def generate_launch_description():
             package = "gz_drone_bringup",
             executable = "odom_republisher_simu",
             name = "odom_republisher_simu",
-            parameters=['/root/ros2_ws/src/gz_drone_bringup/config/depth_cfg.yaml'],
-            output = "screen"
+            parameters=[yaml_file, {'use_sim_time': True}],
+            output = "screen",
         )
     ])

@@ -56,6 +56,9 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     _tf_broadcaster_static7 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    _tf_broadcaster_static8 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
     _tf_broadcaster1 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -106,6 +109,93 @@ void OdomRepublisherSimu::static_tf_pub() {
 
     _tf_broadcaster_static3->sendTransform(_t_static3);
 
+    // _t_static5.header.stamp = this->get_clock()->now();
+    // _t_static5.header.frame_id =  _prefix_tf+"/map";
+    // _t_static5.child_frame_id =  _prefix_tf+"/map_ned";
+    // _t_static5.transform.translation.x = 0.0;
+    // _t_static5.transform.translation.y = 0.0;
+    // _t_static5.transform.translation.z = 0.0;
+    // _t_static5.transform.rotation.w = 0.0;
+    // _t_static5.transform.rotation.x = 0.707;
+    // _t_static5.transform.rotation.y = 0.0;
+    // _t_static5.transform.rotation.z = 0.707;
+
+    // _tf_broadcaster_static5->sendTransform(_t_static5);
+
+    // _t_static6.header.stamp = this->get_clock()->now();
+    // _t_static6.header.frame_id =  _prefix_tf+"/base_link";
+    // _t_static6.child_frame_id =  _prefix_tf+"/camera_link";
+    // _t_static6.transform.translation.x = 0.12;
+    // _t_static6.transform.translation.y = 0.03;
+    // _t_static6.transform.translation.z = 0.0;
+    // _t_static6.transform.rotation.w = 1.0;
+    // _t_static6.transform.rotation.x = 0.0;
+    // _t_static6.transform.rotation.y = 0.0;
+    // _t_static6.transform.rotation.z = 0.0;
+
+    // _tf_broadcaster_static6->sendTransform(_t_static6);
+
+    // _t_static7.header.stamp = this->get_clock()->now();
+    // _t_static7.header.frame_id =  _prefix_tf+"/camera_link";
+    // _t_static7.child_frame_id =  "x500_depth_0/OakD-Lite/base_link/StereoOV7251";
+    // _t_static7.transform.translation.x = 0.0;
+    // _t_static7.transform.translation.y = 0.0;
+    // _t_static7.transform.translation.z = 0.0;
+    // _t_static7.transform.rotation.w = 1.0;
+    // _t_static7.transform.rotation.x = 0.0;
+    // _t_static7.transform.rotation.y = 0.0;
+    // _t_static7.transform.rotation.z = 0.0;
+
+    // _tf_broadcaster_static7->sendTransform(_t_static7);
+
+    // _t_static8.header.stamp = this->get_clock()->now();
+    // _t_static8.header.frame_id =  _prefix_tf+"/camera_link";
+    // _t_static8.child_frame_id =  "x500_depth_0/OakD-Lite/base_link/IMX214";
+    // _t_static8.transform.translation.x = 0.0;
+    // _t_static8.transform.translation.y = 0.0;
+    // _t_static8.transform.translation.z = 0.0;
+    // _t_static8.transform.rotation.w = 1.0;
+    // _t_static8.transform.rotation.x = 0.0;
+    // _t_static8.transform.rotation.y = 0.0;
+    // _t_static8.transform.rotation.z = 0.0;
+
+    // _tf_broadcaster_static8->sendTransform(_t_static8);
+
+}
+
+void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr msg ) {
+
+    _gz_pos << msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z;
+    _gz_quat << msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z;
+    _gz_vel << msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z;
+    _gz_ang_vel << msg->twist.twist.angular.x, msg->twist.twist.angular.y, msg->twist.twist.angular.z;
+
+    _t_static1.header.stamp = this->get_clock()->now();
+    _t_static1.header.frame_id =  _prefix_tf+"/base_link";
+    _t_static1.child_frame_id =  _prefix_tf+"/base_link_frd";
+    _t_static1.transform.translation.x = 0.0;
+    _t_static1.transform.translation.y = 0.0;
+    _t_static1.transform.translation.z = 0.0;
+    _t_static1.transform.rotation.w = 0.0;
+    _t_static1.transform.rotation.x = 1.0;
+    _t_static1.transform.rotation.y = 0.0;
+    _t_static1.transform.rotation.z = 0.0;
+
+    _tf_broadcaster_static1->sendTransform(_t_static1);
+
+    _t.header.stamp = this->get_clock()->now();
+    _t.header.frame_id =  _prefix_tf+"/odom";
+    _t.child_frame_id =  _prefix_tf+"/base_link";
+    _t.transform.translation.x = _gz_pos[0];
+    _t.transform.translation.y = _gz_pos[1];
+    _t.transform.translation.z = _gz_pos[2];
+    _t.transform.rotation.w = _gz_quat[0];
+    _t.transform.rotation.x = _gz_quat[1];
+    _t.transform.rotation.y = _gz_quat[2];
+    _t.transform.rotation.z = _gz_quat[3];
+
+    _tf_broadcaster->sendTransform(_t);
+
     _t_static5.header.stamp = this->get_clock()->now();
     _t_static5.header.frame_id =  _prefix_tf+"/map";
     _t_static5.child_frame_id =  _prefix_tf+"/map_ned";
@@ -145,42 +235,18 @@ void OdomRepublisherSimu::static_tf_pub() {
 
     _tf_broadcaster_static7->sendTransform(_t_static7);
 
-}
+    _t_static8.header.stamp = this->get_clock()->now();
+    _t_static8.header.frame_id =  _prefix_tf+"/camera_link";
+    _t_static8.child_frame_id =  "x500_depth_0/OakD-Lite/base_link/IMX214";
+    _t_static8.transform.translation.x = 0.0;
+    _t_static8.transform.translation.y = 0.0;
+    _t_static8.transform.translation.z = 0.0;
+    _t_static8.transform.rotation.w = 1.0;
+    _t_static8.transform.rotation.x = 0.0;
+    _t_static8.transform.rotation.y = 0.0;
+    _t_static8.transform.rotation.z = 0.0;
 
-void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr msg ) {
-
-    _gz_pos << msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z;
-    _gz_quat << msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z;
-    _gz_vel << msg->twist.twist.linear.x, msg->twist.twist.linear.y, msg->twist.twist.linear.z;
-    _gz_ang_vel << msg->twist.twist.angular.x, msg->twist.twist.angular.y, msg->twist.twist.angular.z;
-
-    _t_static1.header.stamp = this->get_clock()->now();
-    _t_static1.header.frame_id =  _prefix_tf+"/base_link";
-    _t_static1.child_frame_id =  _prefix_tf+"/base_link_frd";
-    _t_static1.transform.translation.x = 0.0;
-    _t_static1.transform.translation.y = 0.0;
-    _t_static1.transform.translation.z = 0.0;
-    _t_static1.transform.rotation.w = 0.0;
-    _t_static1.transform.rotation.x = 1.0;
-    _t_static1.transform.rotation.y = 0.0;
-    _t_static1.transform.rotation.z = 0.0;
-
-    _tf_broadcaster_static1->sendTransform(_t_static1);
-
-    _t.header.stamp = this->get_clock()->now();
-    _t.header.frame_id =  _prefix_tf+"/odom";
-    _t.child_frame_id =  _prefix_tf+"/base_link";
-    _t.transform.translation.x = _gz_pos[0];
-    _t.transform.translation.y = _gz_pos[1];
-    _t.transform.translation.z = _gz_pos[2];
-    _t.transform.rotation.w = _gz_quat[0];
-    _t.transform.rotation.x = _gz_quat[1];
-    _t.transform.rotation.y = _gz_quat[2];
-    _t.transform.rotation.z = _gz_quat[3];
-
-    _tf_broadcaster->sendTransform(_t);
-
-
+    _tf_broadcaster_static8->sendTransform(_t_static8);
 }
 
 void OdomRepublisherSimu::tf_listener() {
