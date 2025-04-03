@@ -8,5 +8,5 @@ tf transformation between odom_ned and base_link_frd.
 This package has to be inteded as startup module for a simulation which goal is the 
 development of a navigation stack for an UAV in GPS-denied environment. To do that,
 the standard TF tree for navigation is implemented:
-
+![TF tree for navigation](tf_gz_sim.png)
 ## TODO: explain about TF tree construction

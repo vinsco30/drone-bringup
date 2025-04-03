@@ -1,0 +1,6 @@
+odom_republisher_simu:
+  ros__parameters:
+    prefix_gz: x500_flamingo_0
+    prefix_tf: flamingo
+
+
