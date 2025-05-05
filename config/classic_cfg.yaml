@@ -1,6 +1,6 @@
 odom_republisher_simu:
   ros__parameters:
-    prefix_gz: x500_0
-    prefix_tf: uav
+    prefix_gz: ''
+    prefix_tf: ''
 
 

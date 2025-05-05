@@ -24,6 +24,10 @@ add_executable( odom_republisher_simu src/odom_republisher_simu.cpp )
 ament_target_dependencies( odom_republisher_simu rclcpp nav_msgs tf2 tf2_ros Eigen3 px4_msgs rclpy )
 install(TARGETS odom_republisher_simu DESTINATION lib/${PROJECT_NAME})
 
+add_executable( odom_republisher_zed src/odom_republisher_zed.cpp )
+ament_target_dependencies( odom_republisher_zed rclcpp nav_msgs tf2 tf2_ros Eigen3 px4_msgs rclpy )
+install(TARGETS odom_republisher_zed DESTINATION lib/${PROJECT_NAME})
+
 # Install launch files
 install(DIRECTORY 
     launch
