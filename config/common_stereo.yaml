@@ -6,6 +6,14 @@
     ros__parameters:
         use_sim_time: false # Set to `true` only if there is a publisher for the simulated clock to the `/clock` topic. Normally used in simulation mode.
 
+        # qos_overrides:
+        #     '/zed/zed_node/odom':
+        #         publisher:
+        #             reliability: best_effort
+        #     '/zed/zed_node/point_cloud/cloud_registered':
+        #         publisher:
+        #             reliability: best_effort
+
         simulation:
             sim_enabled: false # Set to `true` to enable the simulation mode and connect to a simulation server
             sim_address: '127.0.0.1' # The connection address of the simulation server. See the documentation of the supported simulation plugins for more information.
