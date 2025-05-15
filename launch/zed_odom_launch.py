@@ -39,11 +39,11 @@ def generate_launch_description():
             arguments=["0", "0", "0", "0", "0", "0","zed_camera_link", "base_link"]
         ),
 
-        # launch_ros.actions.Node(
-        #     package = "gz_drone_bringup",
-        #     executable = "odom_republisher_zed",
-        #     name = "odom_republisher_zed",
-        #     # parameters=[yaml_file],
-        #     output = "screen"
-        # )
+        launch_ros.actions.Node(
+            package = "gz_drone_bringup",
+            executable = "odom_republisher_zed",
+            name = "odom_republisher_zed",
+            # parameters=[yaml_file],
+            output = "screen"
+        )
     ])
