@@ -36,7 +36,8 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package = "tf2_ros",
             executable = "static_transform_publisher",
-            arguments=["0", "0", "0", "0", "0", "0","zed_camera_link", "base_link"]
+            name = "zed_camera_link_to_base_link",
+            arguments=["-0.2", "0.0", "0.07", "0", "0", "0","zed_camera_link", "base_link"]
         ),
 
         launch_ros.actions.Node(
