@@ -6,13 +6,18 @@
     ros__parameters:
         use_sim_time: false # Set to `true` only if there is a publisher for the simulated clock to the `/clock` topic. Normally used in simulation mode.
 
-        # qos_overrides:
-        #     '/zed/zed_node/odom':
-        #         publisher:
-        #             reliability: best_effort
-        #     '/zed/zed_node/point_cloud/cloud_registered':
-        #         publisher:
-        #             reliability: best_effort
+        qos_overrides:
+            '/zed_front/zed_node/odom':
+                publisher:
+                    reliability: best_effort
+            # '/zed/zed_node/point_cloud/cloud_registered':
+            #     publisher:
+            #         reliability: best_effort
+
+#         qos_overrides./zed_front/zed_node/odom.publisher.depth
+#   qos_overrides./zed_front/zed_node/odom.publisher.history
+#   qos_overrides./zed_front/zed_node/odom.publisher.reliability
+
 
         simulation:
             sim_enabled: false # Set to `true` to enable the simulation mode and connect to a simulation server

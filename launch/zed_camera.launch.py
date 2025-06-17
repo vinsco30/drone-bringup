@@ -98,6 +98,7 @@ def launch_setup(context, *args, **kwargs):
     serial_number = LaunchConfiguration('serial_number')
     camera_id = LaunchConfiguration('camera_id')
 
+    odometry_frame = LaunchConfiguration('odometry_frame')
     publish_urdf = LaunchConfiguration('publish_urdf')
     publish_tf = LaunchConfiguration('publish_tf')
     publish_map_tf = LaunchConfiguration('publish_map_tf')
@@ -257,6 +258,7 @@ def launch_setup(context, *args, **kwargs):
                 'general.camera_id': camera_id,
                 'pos_tracking.publish_tf': publish_tf,
                 'pos_tracking.publish_map_tf': publish_map_tf,
+                'pos_tracking.odometry_frame': odometry_frame,
                 'sensors.publish_imu_tf': publish_imu_tf,
                 'gnss_fusion.gnss_fusion_enabled': enable_gnss
             }
@@ -340,6 +342,10 @@ def generate_launch_description():
                 'camera_id',
                 default_value='-1',
                 description='The ID of the camera to be opened. It is mandatory to use this parameter or serial number in multi-camera rigs to distinguish between different cameras.  Use `ZED_Explorer -a` to retrieve the ID of all the connected cameras.'),
+            DeclareLaunchArgument(
+                'odometry_frame',
+                default_value='odom',
+                description='Name of odometry frame'),
             DeclareLaunchArgument(
                 'publish_urdf',
                 default_value='true',
