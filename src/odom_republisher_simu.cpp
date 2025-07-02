@@ -7,6 +7,9 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     this->declare_parameter<string>("prefix_tf", "uav");
     _prefix_tf = this->get_parameter("prefix_tf").as_string();
 
+    // rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);
+    // this->set_clock(clock);
+
     rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
 
@@ -93,7 +96,9 @@ void OdomRepublisherSimu::static_tf_pub() {
     _t_static2.transform.rotation.x = 0.707;
     _t_static2.transform.rotation.y = 0.707;
     _t_static2.transform.rotation.z = 0.0;
-
+    RCLCPP_INFO(this->get_logger(), "Clock type: %d", this->get_clock()->get_clock_type());
+    auto now = this->get_clock()->now();
+    RCLCPP_INFO(this->get_logger(), "Current time: %ld.%09ld", now.seconds(), now.nanoseconds());
     _tf_broadcaster_static2->sendTransform(_t_static2);
 
     _t_static3.header.stamp = this->get_clock()->now();
@@ -278,7 +283,7 @@ void OdomRepublisherSimu::tf_listener() {
     odom_px4->angular_velocity[2] = NAN;
 
     _odom_px4_pub->publish( std::move( odom_px4 ) );
-    _first_odom_sent = true;
+    _first_odom_sent = false;
 
 
 }

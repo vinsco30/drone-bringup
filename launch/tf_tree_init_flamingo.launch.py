@@ -55,6 +55,14 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
+            arguments = ["/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock"],
+            parameters=[{"qos_overrides./clock.publisher.reliability": 'best_effort'  }],
+            output = "screen"
+        ),
+
+        launch_ros.actions.Node(
+            package = "ros_gz_bridge",
+            executable = "parameter_bridge",
             arguments = ["/model/x500_flamingo_0/odometry@nav_msgs/msg/Odometry@gz.msgs.Odometry"],
             parameters=[{"qos_overrides./model/x500_flamingo_0/odometry.publisher.reliability": 'best_effort'  }],
             output = "screen"
@@ -69,30 +77,30 @@ def generate_launch_description():
             output = "screen"
         ),
 
-        launch_ros.actions.Node(
-            package = "ros_gz_bridge",
-            executable = "parameter_bridge",
-            arguments = ["/camera@sensor_msgs/msg/Image@gz.msgs.Image"],
-            remappings = [("/camera", params['prefix_tf']+"/camera/image_raw")],
-            # parameters=[{"qos_overrides./uav/camera/image_raw.publisher.reliability": 'best_effort'  }],
-            output = "screen"
-        ),
-        launch_ros.actions.Node(
-            package = "ros_gz_bridge",
-            executable = "parameter_bridge",
-            arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
-            remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
-            parameters=[{"qos_overrides./flamingo/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
-            output = "screen"
-        ),
-        launch_ros.actions.Node(
-            package = "ros_gz_bridge",
-            executable = "parameter_bridge",
-            arguments = ["/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo"],
-            remappings = [("/camera_info", params['prefix_tf']+"/camera/camera_info")],
-            parameters=[{"qos_overrides./flamingo/camera/camera_info.publisher.reliability": 'best_effort'  }],
-            output = "screen"
-        ),
+        # launch_ros.actions.Node(
+        #     package = "ros_gz_bridge",
+        #     executable = "parameter_bridge",
+        #     arguments = ["/camera@sensor_msgs/msg/Image@gz.msgs.Image"],
+        #     remappings = [("/camera", params['prefix_tf']+"/camera/image_raw")],
+        #     # parameters=[{"qos_overrides./uav/camera/image_raw.publisher.reliability": 'best_effort'  }],
+        #     output = "screen"
+        # ),
+        # launch_ros.actions.Node(
+        #     package = "ros_gz_bridge",
+        #     executable = "parameter_bridge",
+        #     arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
+        #     remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
+        #     parameters=[{"qos_overrides./flamingo/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
+        #     output = "screen"
+        # ),
+        # launch_ros.actions.Node(
+        #     package = "ros_gz_bridge",
+        #     executable = "parameter_bridge",
+        #     arguments = ["/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo"],
+        #     remappings = [("/camera_info", params['prefix_tf']+"/camera/camera_info")],
+        #     parameters=[{"qos_overrides./flamingo/camera/camera_info.publisher.reliability": 'best_effort'  }],
+        #     output = "screen"
+        # ),
         # launch_ros.actions.Node(
         #     package = "ros_gz_bridge",
         #     executable = "parameter_bridge",
