@@ -62,6 +62,9 @@ OdomRepublisherSimu::OdomRepublisherSimu() : rclcpp::Node( "odom_republisher_sim
     _tf_broadcaster_static8 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    _tf_broadcaster_static9 = 
+        std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
     _tf_broadcaster1 = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -96,9 +99,6 @@ void OdomRepublisherSimu::static_tf_pub() {
     _t_static2.transform.rotation.x = 0.707;
     _t_static2.transform.rotation.y = 0.707;
     _t_static2.transform.rotation.z = 0.0;
-    RCLCPP_INFO(this->get_logger(), "Clock type: %d", this->get_clock()->get_clock_type());
-    auto now = this->get_clock()->now();
-    RCLCPP_INFO(this->get_logger(), "Current time: %ld.%09ld", now.seconds(), now.nanoseconds());
     _tf_broadcaster_static2->sendTransform(_t_static2);
 
     _t_static3.header.stamp = this->get_clock()->now();
@@ -252,6 +252,18 @@ void OdomRepublisherSimu::odom_gz_cb( const nav_msgs::msg::Odometry::SharedPtr m
     _t_static8.transform.rotation.z = 0.0;
 
     _tf_broadcaster_static8->sendTransform(_t_static8);
+
+    _t_static9.header.stamp = this->get_clock()->now();
+    _t_static9.header.frame_id =  _prefix_tf+"/map";
+    _t_static9.child_frame_id =  _prefix_tf+"/odom";
+    _t_static9.transform.translation.x = 9.5; /* -3.5 0.5*/
+    _t_static9.transform.translation.y = 3.5; /* -3.5 0.5*/
+    _t_static9.transform.translation.z = 0.0;
+    _t_static9.transform.rotation.w = 1.0;
+    _t_static9.transform.rotation.x = 0.0;
+    _t_static9.transform.rotation.y = 0.0;
+    _t_static9.transform.rotation.z = 0.0;
+    _tf_broadcaster_static9->sendTransform(_t_static9);
 }
 
 void OdomRepublisherSimu::tf_listener() {

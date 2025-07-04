@@ -68,14 +68,14 @@ def generate_launch_description():
             # parameters=[{"qos_overrides./uav/camera/image_raw.publisher.reliability": 'best_effort'  }],
             output = "screen"
         ),
-        # launch_ros.actions.Node(
-        #     package = "ros_gz_bridge",
-        #     executable = "parameter_bridge",
-        #     arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
-        #     remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
-        #     # parameters=[{"qos_overrides./uav/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
-        #     output = "screen"
-        # ),
+        launch_ros.actions.Node(
+            package = "ros_gz_bridge",
+            executable = "parameter_bridge",
+            arguments = ["/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image"],
+            remappings = [("/depth_camera", params['prefix_tf']+"/camera/depth/image_raw")],
+            # parameters=[{"qos_overrides./uav/camera/depth/image_raw.publisher.reliability": 'best_effort'  }],
+            output = "screen"
+        ),
         launch_ros.actions.Node(
             package = "ros_gz_bridge",
             executable = "parameter_bridge",
@@ -100,6 +100,7 @@ def generate_launch_description():
                     remappings = [("/world/leonardo_race_field/clock", "/clock")],
                     output = "screen"
                 ),
+
         launch_ros.actions.Node(
             package = "gz_drone_bringup",
             executable = "odom_republisher_simu",
